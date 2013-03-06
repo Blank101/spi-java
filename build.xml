@@ -1,0 +1,36 @@
+<project>
+
+	<property name="src" value="src"/>
+	<property name="bin" value="bin"/>
+	<property name="build" value="build"/>
+	<property name="classes" value="classes"/>
+	<property name="jarprefix" value="spi-"/>
+	<property name="version" value="1.0"/>
+	<property name="spiVersion" value="1.0"/>
+	<property name="classpath" value="lib/commons-logging-1.1.jar;lib/ws-commons-util-1.0.2.jar;lib/xmlrpc-client-3.1.3.jar;lib/xmlrpc-common-3.1.3.jar"/>
+	
+    <target name="clean">
+        <delete dir="${bin}"/>
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${bin}"/>
+        <mkdir dir="${bin}/${classes}"/>
+        <javac srcdir="${src}" destdir="${bin}/${classes}" classpath="${classpath}" excludes="com/sandboxd/test/**"/>
+    </target>
+
+    <target name="install" depends="compile">
+		<buildnumber file="build.num"/>
+    	<mkdir dir="${build}"/>
+    	<mkdir dir="${build}/${spiVersion}-${version}.${build.number}"/>
+        <jar destfile="${build}/${spiVersion}-${version}.${build.number}/${jarprefix}${spiVersion}-${version}.${build.number}.jar" basedir="${bin}/${classes}"/>
+        <jar destfile="${build}/${spiVersion}-${version}.${build.number}/${jarprefix}${spiVersion}-${version}.${build.number}-sources.jar">
+			<fileset dir="${src}" excludes="com/sandboxd/test/**"/>
+		</jar>
+    	<javadoc sourcepath="${src}" destdir="${build}/${spiVersion}-${version}.${build.number}/doc" classpath="${classpath}" excludepackagenames="com.sandboxd.test" noqualifier="java.lang" Windowtitle="SandBoxd API"/>
+    	<jar destfile="${build}/${spiVersion}-${version}.${build.number}/${jarprefix}${spiVersion}-${version}.${build.number}-javadoc.jar" basedir="${build}/${spiVersion}-${version}.${build.number}/doc"/>
+    	<zip destfile="${build}/${spiVersion}-${version}.${build.number}/${jarprefix}${spiVersion}-${version}.${build.number}.zip" basedir="${build}/${spiVersion}-${version}.${build.number}" excludes="doc/**"/>
+    </target>
+	
+</project>
