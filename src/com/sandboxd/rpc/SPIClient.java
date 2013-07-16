@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.tools.JavaCompiler;
-
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfig;
@@ -16,7 +14,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfig;
  */
 public class SPIClient extends XmlRpcClient {
 	
-	private static final String VERSION = "1.0";		//Targeted API version
+	private static final String VERSION = "1.1";		//Targeted API version
 	
 	private static final int ERR_USER_DOES_NOT_EXIST = 1;
 	private static final int ERR_SESSION_NOT_VALID = 2;
@@ -129,18 +127,16 @@ public class SPIClient extends XmlRpcClient {
 	 *
 	 * @param uid the unique identification number for the user you want to retrieve
 	 * @param sid the session id of the user which is used to verify the user is who they say they are
-	 * @param ip the public ip address of the user to be used as an additional security measure
 	 * @return the user object
 	 * @see SPIUser
 	 */
 	@SuppressWarnings("unchecked")
-	public SPIUser getUser (int uid, String sid, String ip) throws SPIException, XmlRpcException {
+	public SPIUser getUser (int uid, String sid) throws SPIException, XmlRpcException {
 		try {
 			Object[] result;
 			
 			if (sid == null) result = (Object[])this.execute(GETUSER, addHeader(new Object[] { uid }));
-			else if (ip == null) result = (Object[])this.execute(GETUSER, addHeader(new Object[] { uid, sid }));
-			else result = (Object[])this.execute(GETUSER, addHeader(new Object[] { uid, sid, ip }));
+			else result = (Object[])this.execute(GETUSER, addHeader(new Object[] { uid, sid }));
 			
 			if (sid != null) return new SPIUser(uid, sid, (String)result[0], (String)result[1], (Integer)result[2], getIntegerList((Object[])result[3]), (Map<String, Integer>)result[4], (Map<String, String>)result[5], getStringList((Object[])result[6]));
 			else return new SPIUser(uid, sid, (String)result[0], (String)result[1], (Integer)result[2], getIntegerList((Object[])result[3]), (Map<String, Integer>)result[4], (Map<String, String>)result[5]);
@@ -168,18 +164,6 @@ public class SPIClient extends XmlRpcClient {
 				throw e;
 			}
 		}
-	}
-
-	/**
-	 * Returns a user object containing detailed information about the user. This method will also perform session id validation.
-	 *
-	 * @param uid the unique identification number for the user you want to retrieve
-	 * @param sid the session id of the user which is used to verify the user is who they say they are
-	 * @return the user object
-	 * @see SPIUser
-	 */
-	public SPIUser getUser (int uid, String sid) throws SPIException, XmlRpcException {
-		return this.getUser(uid, sid, null);
 	}
 
 	/**
@@ -309,6 +293,18 @@ public class SPIClient extends XmlRpcClient {
 				throw e;
 			}
 		}
+	}
+
+	/**
+	 * Sets an statistic value for the specified user. Used for ranked (leaderboard) statistics.
+	 *
+	 * @param uid the unique identification number for the user you want to set the statistic for
+	 * @param sid the user's session id used for verification
+	 * @param key the statistic identifier
+	 * @param value the value to set the statistic to
+	 */
+	public void setStat (int uid, String sid, String key, double value) throws SPIException, XmlRpcException {
+		setStat(uid, sid, key, String.valueOf(value));
 	}
 
 	/**
